@@ -33,13 +33,57 @@ async function run() {
             const result = await userCollection.insertOne(user);
             res.send(result);
         })
-        app.get("users/:id",async(req,res)=>{
-            const id= req.params.id;
-            const filter_id = {_id: new ObjectId(id)}
-            const result = await userCollection.findOne(filter_id);
+        // app.get("users/:id",async(req,res)=>{
+        //     const id= req.params.id;
+        //     const filter_id = {_id: new ObjectId(id)}
+        //     const result = await userCollection.findOne(filter_id);
+        //     res.send(result);
+        // });
+
+        app.post("/products", async (req, res) => {
+            const product = req.body;
+            const result = await productCollection.insertOne(product);
+            res.send(result);
+        });
+        app.get("/products", async (req, res) => {
+            const cursor = productCollection.find();
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+        app.get("/products/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await productCollection.findOne(query);
             res.send(result);
         });
 
+        app.put("/products/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const options = { upsert: true };
+            const updatedProduct = req.body;
+            console.log("Hit Update Product with this data", updatedProduct);
+            const updateproduct = {
+                $set: {
+                    productName: updatedProduct.productName,
+                    brandName: updatedProduct.brandName,
+                    productCat: updatedProduct.productCat,
+                    productPrice: updatedProduct.productPrice,
+                    productRating: updatedProduct.productRating,
+                    productImage: updatedProduct.productImage,
+                    productImage: updatedProduct.productImage,
+                },
+            };
+            const result = await productCollection.updateOne(query, updateproduct, options);
+            res.send(result);
+        });
+
+        app.delete("/products/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await productCollection.deleteOne(query);
+            res.send(result);
+        });
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
