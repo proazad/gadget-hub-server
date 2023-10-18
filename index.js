@@ -50,6 +50,7 @@ async function run() {
             const result = await cursor.toArray();
             res.send(result);
         });
+
         app.get("/products/:id", async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) }
@@ -71,7 +72,7 @@ async function run() {
                     productPrice: updatedProduct.productPrice,
                     productRating: updatedProduct.productRating,
                     productImage: updatedProduct.productImage,
-                    productImage: updatedProduct.productImage,
+                    productDescription: updatedProduct.productDescription,
                 },
             };
             const result = await productCollection.updateOne(query, updateproduct, options);
@@ -84,6 +85,94 @@ async function run() {
             const result = await productCollection.deleteOne(query);
             res.send(result);
         });
+
+
+        // Brand CRUD Operations 
+        app.post("/brands", async (req, res) => {
+            const brand = req.body;
+            const result = await brandCollection.insertOne(brand);
+            res.send(result);
+        });
+
+        app.get("/brands", async (req, res) => {
+            const cursor = brandCollection.find();
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+
+
+        app.get("/brands/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await brandCollection.findOne(query);
+            res.send(result);
+        });
+
+        app.put("/brands/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const options = { upsert: true };
+            const updateBrand = req.body;
+            const brand = {
+                $set: {
+                    brandName: updateBrand.brandName,
+                    brandImage: updateBrand.brandImage,
+                    brandDescription: updateBrand.brandDescription,
+                },
+            };
+            const result = await brandCollection.updateOne(query, brand, options);
+            res.send(result);
+        });
+        app.delete("/brands/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await brandCollection.deleteOne(query);
+            res.send(result);
+        });
+
+        // Slider CRUD Operations 
+        app.post("/sliders", async (req, res) => {
+            const slider = req.body;
+            const result = await sliderCollection.insertOne(slider);
+            res.send(result);
+        });
+
+        app.get("/sliders", async (req, res) => {
+            const cursor = sliderCollection.find();
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+
+
+        app.get("/sliders/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await sliderCollection.findOne(query);
+            res.send(result);
+        });
+
+        app.put("/sliders/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const options = { upsert: true };
+            const updateSlider = req.body;
+            const slider = {
+                $set: {
+                    sliderTitle: updateSlider.sliderTitle,
+                    sliderImage: updateSlider.sliderImage,
+                    sliderDescription: updateSlider.sliderDescription,
+                },
+            };
+            const result = await sliderCollection.updateOne(query, slider, options);
+            res.send(result);
+        });
+        app.delete("/sliders/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await sliderCollection.deleteOne(query);
+            res.send(result);
+        });
+
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
