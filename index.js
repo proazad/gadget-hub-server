@@ -22,29 +22,26 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         // Connect the client to the server	(optional starting in v4.7)
-        await client.connect();
+        // await client.connect();
         const productCollection = client.db("gadgetHubDB").collection("product");
         const userCollection = client.db("gadgetHubDB").collection("users");
         const brandCollection = client.db("gadgetHubDB").collection("brand");
         const sliderCollection = client.db("gadgetHubDB").collection("slider");
+        const brandsliderCollection = client.db("gadgetHubDB").collection("brandslider");
+        const cartsCollection = client.db("gadgetHubDB").collection("carts");
 
         app.post("/users", async (req, res) => {
             const user = req.body;
             const result = await userCollection.insertOne(user);
             res.send(result);
         })
-        // app.get("users/:id",async(req,res)=>{
-        //     const id= req.params.id;
-        //     const filter_id = {_id: new ObjectId(id)}
-        //     const result = await userCollection.findOne(filter_id);
-        //     res.send(result);
-        // });
 
         app.post("/products", async (req, res) => {
             const product = req.body;
             const result = await productCollection.insertOne(product);
             res.send(result);
         });
+
         app.get("/products", async (req, res) => {
             const cursor = productCollection.find();
             const result = await cursor.toArray();
@@ -73,6 +70,8 @@ async function run() {
                     productRating: updatedProduct.productRating,
                     productImage: updatedProduct.productImage,
                     productDescription: updatedProduct.productDescription,
+                    productFeatured: updatedProduct.productFeatured,
+                    productHotSale: updatedProduct.productHotSale,
                 },
             };
             const result = await productCollection.updateOne(query, updateproduct, options);
@@ -173,8 +172,75 @@ async function run() {
             res.send(result);
         });
 
+        // Add to Cart Prodcut Complete CRUD 
+        app.post("/carts", async (req, res) => {
+            const product = req.body;
+            const result = await cartsCollection.insertOne(product);
+            res.send(result);
+        });
+        app.get("/carts", async (req, res) => {
+            const cursor = cartsCollection.find();
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+
+        app.delete("/carts/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await cartsCollection.deleteOne(query);
+            res.send(result);
+        });
+        
+
+        
+        // Brand Slider CRUD Operations 
+        app.post("/brandsliders", async (req, res) => {
+            const slider = req.body;
+            const result = await brandsliderCollection.insertOne(slider);
+            res.send(result);
+        });
+
+        app.get("/brandsliders", async (req, res) => {
+            const cursor = brandsliderCollection.find();
+            const result = await cursor.toArray();
+            res.send(result);
+        });
+
+
+        app.get("/brandsliders/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await brandsliderCollection.findOne(query);
+            res.send(result);
+        });
+
+        app.put("/brandsliders/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const options = { upsert: true };
+            const updateSlider = req.body;
+            const slider = {
+                $set: {
+                    sliderTitle: updateSlider.sliderTitle,
+                    sliderImage: updateSlider.sliderImage,
+                    sliderDescription: updateSlider.sliderDescription,
+                    sliderBrand: updateSlider.sliderBrand,
+
+                },
+            };
+            const result = await brandsliderCollection.updateOne(query, slider, options);
+            res.send(result);
+        });
+        
+        app.delete("/brandsliders/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await brandsliderCollection.deleteOne(query);
+            res.send(result);
+        });
+
         // Send a ping to confirm a successful connection
-        await client.db("admin").command({ ping: 1 });
+        // await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
     } finally {
         // Ensures that the client will close when you finish/error
